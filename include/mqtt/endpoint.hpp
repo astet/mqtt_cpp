@@ -4495,7 +4495,7 @@ public:
      * 3.1.2.10 Keep Alive
      */
     void set_pingresp_timeout(std::chrono::steady_clock::duration tim) {
-        pingresp_timeout_ = mqtt::force_move(tim);
+        pingresp_timeout_ = MQTT_NS::force_move(tim);
     }
 
     /**
@@ -4549,12 +4549,13 @@ protected:
             connected_ = false;
             mqtt_connected_ = false;
             {
-                boost::system::error_code ec;
-                socket_->close(ec);
+                boost::system::error_code ignored_ec;
+                socket_->close(ignored_ec);
             }
         }
         if (   (ec == as::error::eof)
             || (ec == as::error::connection_reset)
+            || (ec == as::error::operation_aborted)
 #if defined(MQTT_USE_WS)
             || (ec == boost::beast::websocket::error::closed)
 #endif // defined(MQTT_USE_WS)
